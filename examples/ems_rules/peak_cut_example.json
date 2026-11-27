@@ -1,0 +1,58 @@
+{
+  "ems_schema_version": "0.1",
+  "name": "peak_cut_example",
+  "description": "Illustrative v0.1 JSON EMS rule set for grid-connected peak-cut buffering and reserve protection.",
+  "params": {
+    "reserve_soc_fraction": 0.30,
+    "soc_max_fraction": 0.95,
+    "grid_export_limit_kw": 2000.0
+  },
+  "priority": ["pv", "bess", "biomass"],
+  "fallback_mode_dispatcher": true,
+  "rules": [
+    {
+      "id": "r_enforce_peak_cut_limit",
+      "enabled": true,
+      "priority": 5,
+      "mode_scope": ["peak_cut"],
+      "when": {
+        "var": "grid_connected",
+        "op": "==",
+        "value": true
+      },
+      "then": [
+        { "action": "enforce_export_limit", "limit": "$params.grid_export_limit_kw" }
+      ]
+    },
+    {
+      "id": "r_peak_cut_charge_surplus",
+      "enabled": true,
+      "priority": 10,
+      "mode_scope": ["peak_cut", "grid_connected_normal"],
+      "when": {
+        "all": [
+          { "var": "pv_surplus_kw", "op": ">", "value": 0.0 },
+          { "var": "bess_soc_fraction", "op": "<", "value": "$params.soc_max_fraction" }
+        ]
+      },
+      "then": [
+        { "action": "charge_bess", "limit": "pv_surplus_kw" }
+      ]
+    },
+    {
+      "id": "r_peak_cut_discharge_support",
+      "enabled": true,
+      "priority": 20,
+      "mode_scope": ["peak_cut", "grid_connected_normal"],
+      "when": {
+        "all": [
+          { "var": "net_load_kw", "op": ">", "value": 0.0 },
+          { "var": "bess_soc_fraction", "op": ">", "value": "$params.reserve_soc_fraction" }
+        ]
+      },
+      "then": [
+        { "action": "discharge_bess", "limit": "net_load_kw" }
+      ]
+    }
+  ]
+}

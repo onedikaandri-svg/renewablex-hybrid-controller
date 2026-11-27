@@ -1,0 +1,43 @@
+{
+  "ems_schema_version": "0.1",
+  "name": "islanded_reserve_example",
+  "description": "Illustrative v0.1 JSON EMS rule set for islanded and biomass-maintenance load following.",
+  "params": {
+    "soc_min_fraction": 0.15,
+    "soc_max_fraction": 0.95
+  },
+  "priority": ["pv", "bess", "biomass"],
+  "fallback_mode_dispatcher": true,
+  "rules": [
+    {
+      "id": "r_islanded_charge_excess_pv",
+      "enabled": true,
+      "priority": 10,
+      "mode_scope": ["islanded", "biomass_maintenance"],
+      "when": {
+        "all": [
+          { "var": "pv_surplus_kw", "op": ">", "value": 0.0 },
+          { "var": "bess_soc_fraction", "op": "<", "value": "$params.soc_max_fraction" }
+        ]
+      },
+      "then": [
+        { "action": "charge_bess", "limit": "pv_surplus_kw" }
+      ]
+    },
+    {
+      "id": "r_islanded_discharge_to_min_soc",
+      "enabled": true,
+      "priority": 20,
+      "mode_scope": ["islanded", "biomass_maintenance"],
+      "when": {
+        "all": [
+          { "var": "net_load_kw", "op": ">", "value": 0.0 },
+          { "var": "bess_soc_fraction", "op": ">", "value": "$params.soc_min_fraction" }
+        ]
+      },
+      "then": [
+        { "action": "discharge_bess", "limit": "net_load_kw" }
+      ]
+    }
+  ]
+}
