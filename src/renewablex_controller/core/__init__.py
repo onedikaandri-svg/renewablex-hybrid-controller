@@ -24,6 +24,7 @@ from renewablex_controller.core.ems_rules import (
     EMSRuleValidationError,
 )
 from renewablex_controller.core.mode_manager import ModeEvaluationResult, OperatingModeManager
+from renewablex_controller.core.mpc_dispatcher import ForecastPoint, LookaheadMPCDispatcher
 from renewablex_controller.core.plant_model import (
     BESSOperationalConfig,
     BiomassOperationalConfig,
@@ -74,8 +75,10 @@ __all__ = [
     "EMSRuleInterpreter",
     "EMSRuleSet",
     "EMSRuleValidationError",
+    "ForecastPoint",
     "GridOperationalConfig",
     "HybridController",
+    "LookaheadMPCDispatcher",
     "MAX_CONDITION_DEPTH",
     "ModeEvaluationResult",
     "ModeTransitionEvent",
