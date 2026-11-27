@@ -11,6 +11,7 @@ from renewablex_controller.core.contracts import (
     ControllerStepInput,
     ControllerStepOutput,
 )
+from renewablex_controller.core.controller import HybridController
 from renewablex_controller.core.dispatch_engine import PowerDispatchEngine
 from renewablex_controller.core.ems_rules import EMSRuleSet
 from renewablex_controller.core.plant_model import PlantOperationalConfig
@@ -145,10 +146,23 @@ class RenewableXEMSAdapter:
         self,
         config: PlantOperationalConfig,
         rule_set: EMSRuleSet | None = None,
+        *,
+        use_fsm: bool = False,
     ) -> None:
         self._config = config
+        self._use_fsm = use_fsm
         self._engine = PowerDispatchEngine(config, rule_set=rule_set)
         self._supervisor = SafetySupervisor(config)
+        self._controller = HybridController(config, rule_set=rule_set)
+
+    @property
+    def controller_state(self) -> ControllerState:
+        """Current internal FSM state when use_fsm is enabled."""
+        return self._controller.state
+
+    def reset(self, initial_state: ControllerState | None = None) -> None:
+        """Reset internal FSM state for a fresh simulation sweep."""
+        self._controller.reset(initial_state)
 
     def step_from_context(
         self,
@@ -171,6 +185,13 @@ class RenewableXEMSAdapter:
             grid_export_limit_kw=grid_export_limit_kw,
             biomass_maintenance_mode=biomass_maintenance_mode,
         )
+        if self._use_fsm and operating_mode is None:
+            if state is not None:
+                step_out, _ = self._controller.evaluate_step(step_in, state)
+            else:
+                step_out = self._controller.step(step_in)
+            return to_renewablex_decision(step_out), step_out
+
         if operating_mode is not None:
             mode = operating_mode
         elif not step_in.grid_connected:
