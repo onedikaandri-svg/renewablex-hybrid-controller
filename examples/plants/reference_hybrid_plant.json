@@ -1,0 +1,56 @@
+{
+  "_comment": "Illustrative synthetic plant operational configuration for simulation testing only. Not an approved project design.",
+  "plant_metadata": {
+    "plant_id": "ref_plant_01",
+    "plant_name": "Reference Hybrid Plant",
+    "feeder_id": "FEEDER_01",
+    "nominal_voltage_kv": 20.0
+  },
+  "pv": {
+    "nameplate_kwp": 600.0,
+    "rated_ac_kw": 550.0,
+    "curtailment_enabled": true,
+    "available": true
+  },
+  "biomass": {
+    "nameplate_kw": 2500.0,
+    "operating_max_kw": 2000.0,
+    "min_load_kw": 600.0,
+    "ramp_up_kw_per_hour": 600.0,
+    "ramp_down_kw_per_hour": 600.0,
+    "startup_time_seconds": 1800.0,
+    "shutdown_time_seconds": 1800.0,
+    "min_up_time_seconds": 3600.0,
+    "min_down_time_seconds": 3600.0,
+    "available": true
+  },
+  "bess": {
+    "nominal_capacity_kwh": 2500.0,
+    "effective_capacity_kwh": 2250.0,
+    "max_charge_kw": 1000.0,
+    "max_discharge_kw": 1000.0,
+    "soc_min_fraction": 0.15,
+    "reserve_soc_fraction": 0.30,
+    "soc_max_fraction": 0.95,
+    "charge_efficiency": 0.95,
+    "discharge_efficiency": 0.95,
+    "allow_reserve_drawdown_in_islanded": true,
+    "available": true
+  },
+  "grid": {
+    "interconnection_limit_kw": 2500.0,
+    "default_allow_import": true,
+    "default_allow_export": true,
+    "default_export_limit_kw": 2000.0
+  },
+  "control_policy": {
+    "default_dt_seconds": 3600.0,
+    "momentary_outage_threshold_seconds": 60.0,
+    "max_telemetry_age_seconds": 30.0,
+    "power_balance_tolerance_kw": 1e-6,
+    "require_operator_ack_for_restoration": true,
+    "require_operator_ack_for_fault_reset": true,
+    "comm_loss_action": "emergency_fault",
+    "hardware_commands_enabled": false
+  }
+}
