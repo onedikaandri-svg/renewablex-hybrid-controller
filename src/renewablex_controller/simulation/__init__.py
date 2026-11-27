@@ -8,6 +8,11 @@ from renewablex_controller.simulation.harness import (
     SimulationRunSummary,
     SimulationStepRecord,
 )
+from renewablex_controller.simulation.hil import (
+    HILSuiteReport,
+    HILTestResult,
+    HILValidationSuite,
+)
 from renewablex_controller.simulation.reporters import (
     export_result_json,
     export_schedule_csv,
@@ -26,6 +31,9 @@ from renewablex_controller.simulation.scenarios import (
 
 __all__ = [
     "ControllerSimulationHarness",
+    "HILSuiteReport",
+    "HILTestResult",
+    "HILValidationSuite",
     "ScenarioDefinition",
     "ScenarioStepProfile",
     "SimulationRunResult",
