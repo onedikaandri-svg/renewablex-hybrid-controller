@@ -11,6 +11,7 @@ from renewablex_controller.core.contracts import (
     ModeTransitionEvent,
     ProposedDispatch,
 )
+from renewablex_controller.core.controller import HybridController
 from renewablex_controller.core.dispatch_engine import PowerDispatchEngine
 from renewablex_controller.core.ems_rules import (
     MAX_CONDITION_DEPTH,
@@ -22,6 +23,7 @@ from renewablex_controller.core.ems_rules import (
     EMSRuleSet,
     EMSRuleValidationError,
 )
+from renewablex_controller.core.mode_manager import ModeEvaluationResult, OperatingModeManager
 from renewablex_controller.core.plant_model import (
     BESSOperationalConfig,
     BiomassOperationalConfig,
@@ -37,6 +39,11 @@ from renewablex_controller.core.power_balance import (
     verify_step_output,
 )
 from renewablex_controller.core.safety_supervisor import SafetySupervisor
+from renewablex_controller.core.sequence_manager import (
+    SequenceKind,
+    SequenceManager,
+    SequenceStepResult,
+)
 from renewablex_controller.core.units import (
     DEFAULT_POWER_BALANCE_TOLERANCE_KW,
     NUMERIC_ZERO_EPSILON,
@@ -68,10 +75,13 @@ __all__ = [
     "EMSRuleSet",
     "EMSRuleValidationError",
     "GridOperationalConfig",
+    "HybridController",
     "MAX_CONDITION_DEPTH",
+    "ModeEvaluationResult",
     "ModeTransitionEvent",
     "NUMERIC_ZERO_EPSILON",
     "OperatingMode",
+    "OperatingModeManager",
     "PVOperationalConfig",
     "PlantMetadataConfig",
     "PlantOperationalConfig",
@@ -81,6 +91,9 @@ __all__ = [
     "SECONDS_PER_HOUR",
     "SUPPORTED_EMS_SCHEMA_VERSION",
     "SafetySupervisor",
+    "SequenceKind",
+    "SequenceManager",
+    "SequenceStepResult",
     "check_power_balance",
     "dt_seconds_to_hours",
     "verify_step_output",
