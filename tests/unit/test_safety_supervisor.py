@@ -105,7 +105,11 @@ def test_bess_reserve_enforced_in_normal_mode_and_relaxed_in_islanded() -> None:
     sup = SafetySupervisor(cfg)
 
     # At SoC = 0.30 (equal to reserve_soc_fraction), discharge in normal mode must be 0 kW
-    normal_in = _step_input(bess_soc_fraction=0.30, pv_available_kw=0.0, biomass_status=BiomassStatus.OFF)
+    normal_in = _step_input(
+        bess_soc_fraction=0.30,
+        pv_available_kw=0.0,
+        biomass_status=BiomassStatus.OFF,
+    )
     proposed_normal = ProposedDispatch(
         operating_mode=OperatingMode.GRID_CONNECTED_NORMAL,
         pv_command_kw=0.0,

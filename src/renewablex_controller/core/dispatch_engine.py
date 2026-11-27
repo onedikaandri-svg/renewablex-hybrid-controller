@@ -109,7 +109,10 @@ class PowerDispatchEngine:
         bio_lower, bio_upper, bio_can_gen = self._biomass_envelope(step_in, operating_mode)
         bio_start_req = False
         bio_stop_req = (
-            (step_in.biomass_maintenance_mode or operating_mode == OperatingMode.BIOMASS_MAINTENANCE)
+            (
+                step_in.biomass_maintenance_mode
+                or operating_mode == OperatingMode.BIOMASS_MAINTENANCE
+            )
             and step_in.biomass_status == BiomassStatus.RUNNING
             and step_in.biomass_can_stop
         )
@@ -133,12 +136,18 @@ class PowerDispatchEngine:
 
         # Grid limits & export target
         grid_active = step_in.grid_connected and operating_mode not in _OFF_GRID_MODES
-        max_import = (
-            self._config.grid.interconnection_limit_kw
-            if (grid_active and step_in.allow_grid_import and self._config.grid.default_allow_import)
-            else 0.0
+        import_allowed = (
+            grid_active
+            and step_in.allow_grid_import
+            and self._config.grid.default_allow_import
         )
-        if not (grid_active and step_in.allow_grid_export and self._config.grid.default_allow_export):
+        max_import = self._config.grid.interconnection_limit_kw if import_allowed else 0.0
+        export_allowed = (
+            grid_active
+            and step_in.allow_grid_export
+            and self._config.grid.default_allow_export
+        )
+        if not export_allowed:
             max_export = 0.0
         else:
             max_export = self._config.grid.interconnection_limit_kw
@@ -206,10 +215,15 @@ class PowerDispatchEngine:
                 trace_reason=trace,
             )
 
+        bio_running = (
+            not bio_rule_locked
+            and bio_can_gen
+            and step_in.biomass_status == BiomassStatus.RUNNING
+        )
         if grid_active:
             if export_target is not None:
                 desired_export = min(export_target, max_export)
-                if not bio_rule_locked and bio_can_gen and step_in.biomass_status == BiomassStatus.RUNNING:
+                if bio_running:
                     needed_bio = (total_demand + desired_export) - pv_cmd
                     bio_cmd = min(max(needed_bio, bio_lower), bio_upper)
 
@@ -241,13 +255,16 @@ class PowerDispatchEngine:
                         cut_bio = min(excess, bio_cmd - bio_lower)
                         bio_cmd -= cut_bio
                         excess -= cut_bio
-                    grid_export = max(0.0, pv_cmd + bio_cmd + bess_discharge - bess_charge - total_demand)
+                    grid_export = max(
+                        0.0,
+                        pv_cmd + bio_cmd + bess_discharge - bess_charge - total_demand,
+                    )
                 elif net_pcc >= 0.0:
                     grid_export = net_pcc
                 else:
                     grid_import = -net_pcc
             else:
-                if not bio_rule_locked and bio_can_gen and step_in.biomass_status == BiomassStatus.RUNNING:
+                if bio_running:
                     desired_bio = max(total_demand - pv_cmd, bio_lower)
                     bio_cmd = min(max(desired_bio, bio_lower), bio_upper)
 
@@ -266,7 +283,10 @@ class PowerDispatchEngine:
                         cut_bio = min(excess, bio_cmd - bio_lower)
                         bio_cmd -= cut_bio
                         excess -= cut_bio
-                    grid_export = max(0.0, pv_cmd + bio_cmd + bess_discharge - bess_charge - total_demand)
+                    grid_export = max(
+                        0.0,
+                        pv_cmd + bio_cmd + bess_discharge - bess_charge - total_demand,
+                    )
                 elif net_pcc >= 0.0:
                     grid_export = net_pcc
                 else:
@@ -278,7 +298,7 @@ class PowerDispatchEngine:
                     grid_import = max(0.0, deficit)
         else:
             # Off-grid / islanded load-following
-            if not bio_rule_locked and bio_can_gen and step_in.biomass_status == BiomassStatus.RUNNING:
+            if bio_running:
                 needed_bio = total_demand - pv_cmd
                 bio_cmd = min(max(needed_bio, bio_lower), bio_upper)
 

@@ -62,7 +62,9 @@ def _step_input(**overrides: Any) -> ControllerStepInput:
 
 
 def test_load_example_ems_rule_files() -> None:
-    peak_cut = EMSRuleSet.from_json_file(REPO_ROOT / "examples" / "ems_rules" / "peak_cut_example.json")
+    peak_cut = EMSRuleSet.from_json_file(
+        REPO_ROOT / "examples" / "ems_rules" / "peak_cut_example.json"
+    )
     islanded = EMSRuleSet.from_json_file(
         REPO_ROOT / "examples" / "ems_rules" / "islanded_reserve_example.json"
     )

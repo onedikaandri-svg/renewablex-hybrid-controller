@@ -75,7 +75,7 @@ def test_500_randomized_steps_preserve_invariants() -> None:
             emergency_stop=rng.random() < 0.05,
         )
 
-        # Intentionally adversarial proposal with potential simultaneous flows and out-of-range values
+        # Adversarial proposal with potential simultaneous flows and out-of-range values
         proposed = ProposedDispatch(
             operating_mode=mode,
             pv_command_kw=rng.uniform(0.0, 900.0),

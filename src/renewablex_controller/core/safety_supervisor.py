@@ -413,7 +413,11 @@ class SafetySupervisor:
             clamped = True
             violations.append("BIOMASS_STOP_BLOCKED")
 
-        if maint_locked and step_in.biomass_status == BiomassStatus.RUNNING and step_in.biomass_can_stop:
+        if (
+            maint_locked
+            and step_in.biomass_status == BiomassStatus.RUNNING
+            and step_in.biomass_can_stop
+        ):
             stop_req = True
 
         cannot_generate = (

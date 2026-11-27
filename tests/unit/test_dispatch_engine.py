@@ -70,7 +70,9 @@ def test_normal_export_target_tracking() -> None:
 
 def test_peak_cut_with_json_rules_buffers_excess_and_curtails() -> None:
     cfg = _load_plant()
-    rules = EMSRuleSet.from_json_file(REPO_ROOT / "examples" / "ems_rules" / "peak_cut_example.json")
+    rules = EMSRuleSet.from_json_file(
+        REPO_ROOT / "examples" / "ems_rules" / "peak_cut_example.json"
+    )
     engine = PowerDispatchEngine(cfg, rule_set=rules)
 
     # Low load (200+50 = 250 kW), high PV (550 kW -> pv_surplus = 300 kW), biomass at 1950 kW
@@ -155,7 +157,9 @@ def test_unsafe_json_rule_clamped_by_safety_supervisor() -> None:
 
 def test_24_hour_deterministic_dispatch_simulation() -> None:
     cfg = _load_plant()
-    rules = EMSRuleSet.from_json_file(REPO_ROOT / "examples" / "ems_rules" / "peak_cut_example.json")
+    rules = EMSRuleSet.from_json_file(
+        REPO_ROOT / "examples" / "ems_rules" / "peak_cut_example.json"
+    )
     engine = PowerDispatchEngine(cfg, rule_set=rules)
     bess_mgr = BESSSupervisoryManager(cfg.bess)
     sup = SafetySupervisor(cfg)

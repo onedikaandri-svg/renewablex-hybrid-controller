@@ -109,7 +109,10 @@ class BESSOperationalConfig(BaseModel):
             raise ValueError(f"soc_fraction must be in [0, 1], got {soc_fraction!r}")
         if not self.available or self.effective_capacity_kwh <= 0.0:
             return 0.0
-        energy_headroom_kwh = max(0.0, (self.soc_max_fraction - soc_fraction) * self.effective_capacity_kwh)
+        energy_headroom_kwh = max(
+            0.0,
+            (self.soc_max_fraction - soc_fraction) * self.effective_capacity_kwh,
+        )
         step_limited_kw = energy_headroom_kwh / (dt_hours * self.charge_efficiency)
         return min(self.max_charge_kw, step_limited_kw)
 

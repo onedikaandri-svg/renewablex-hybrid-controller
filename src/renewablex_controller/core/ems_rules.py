@@ -231,8 +231,12 @@ class EMSRuleSet(BaseModel):
                     path=f"{rule_path}.mode_scope",
                 )
 
-            when_node = raw_rule.get("when")
-            _validate_condition_node(when_node, params=params, depth=1, path=f"{rule_path}.when")
+            when_node = _validate_condition_node(
+                raw_rule.get("when"),
+                params=params,
+                depth=1,
+                path=f"{rule_path}.when",
+            )
 
             raw_then = raw_rule.get("then")
             if not isinstance(raw_then, list) or len(raw_then) == 0:
@@ -291,7 +295,7 @@ def _validate_condition_node(
     params: dict[str, Any],
     depth: int,
     path: str,
-) -> None:
+) -> dict[str, Any]:
     if depth > MAX_CONDITION_DEPTH:
         raise EMSRuleValidationError(
             "EMS_ERR_MAX_DEPTH_EXCEEDED",
@@ -314,8 +318,13 @@ def _validate_condition_node(
                 path=path,
             )
         for idx, child in enumerate(node[key]):
-            _validate_condition_node(child, params=params, depth=depth + 1, path=f"{path}.{key}[{idx}]")
-        return
+            _validate_condition_node(
+                child,
+                params=params,
+                depth=depth + 1,
+                path=f"{path}.{key}[{idx}]",
+            )
+        return node
 
     if "not" in node:
         if len(node) != 1:
@@ -325,7 +334,7 @@ def _validate_condition_node(
                 path=path,
             )
         _validate_condition_node(node["not"], params=params, depth=depth + 1, path=f"{path}.not")
-        return
+        return node
 
     var_name = node.get("var")
     op = node.get("op")
@@ -361,6 +370,7 @@ def _validate_condition_node(
         value=resolved_val,
         path=f"{path}.value",
     )
+    return node
 
 
 def _is_number(val: Any) -> bool:
@@ -603,7 +613,8 @@ class EMSRuleInterpreter:
                 if action.intent_group in intents:
                     skipped_due_to_conflict = True
                     trace_notes.append(
-                        f"skipped {rule.id}.{action.action} (group '{action.intent_group}' already set)"
+                        f"skipped {rule.id}.{action.action} "
+                        f"(group '{action.intent_group}' already set)"
                     )
                     continue
 
@@ -617,7 +628,8 @@ class EMSRuleInterpreter:
                     if resolved_val is None:
                         skipped_due_to_conflict = True
                         trace_notes.append(
-                            f"skipped {rule.id}.{action.action} (source '{action.value_source}' is None)"
+                            f"skipped {rule.id}.{action.action} "
+                            f"(source '{action.value_source}' is None)"
                         )
                         continue
                     resolved_val = max(0.0, resolved_val)

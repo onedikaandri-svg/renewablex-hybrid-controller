@@ -99,8 +99,9 @@ def test_bess_bounds_and_step_energy_limits() -> None:
     assert bess.max_charge_kw_for_step(0.90, 900.0) == pytest.approx(100.0 / (0.25 * 0.90))
     # Above soc_max gives 0.0
     assert bess.max_charge_kw_for_step(0.96, 900.0) == 0.0
-    # Discharge against reserve floor (0.30) from 0.35 SoC over 1h at 0.95 eff = 0.05 * 2000 * 0.95 = 95 kW
-    assert bess.max_discharge_kw_for_step(0.35, 3600.0, soc_floor_fraction=0.30) == pytest.approx(95.0)
+    # Discharge against 0.30 floor from 0.35 SoC over 1h at 0.95 eff = 95 kW
+    dis_kw = bess.max_discharge_kw_for_step(0.35, 3600.0, soc_floor_fraction=0.30)
+    assert dis_kw == pytest.approx(95.0)
     # Discharge floor clamps to at least soc_min_fraction
     assert bess.max_discharge_kw_for_step(0.35, 3600.0, soc_floor_fraction=0.05) == pytest.approx(
         0.20 * 2000.0 * 0.95
